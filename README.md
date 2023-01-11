@@ -10,8 +10,6 @@ Download :
 
 >cd R3B_Neutron_Generator
 
->git checkout dev
-
 To run : 
 
 >root
