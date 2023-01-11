@@ -7,7 +7,9 @@ Different options can be selected by modifying the file and uncommenting/comment
 Download :
 
 >git clone https://github.com/aldros/R3B_Neutron_Generator.git
+
 >cd R3B_Neutron_Generator
+
 >git checkout dev
 
 To run : 
