@@ -4,6 +4,12 @@ Use this file to generate input file to be used with the R3BRoot simulation. All
 
 Different options can be selected by modifying the file and uncommenting/commenting some parts.
 
+Download :
+
+>git clone https://github.com/aldros/R3B_Neutron_Generator.git
+>cd R3B_Neutron_Generator
+>git checkout dev
+
 To run : 
 
 >root
