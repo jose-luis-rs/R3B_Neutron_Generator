@@ -441,8 +441,8 @@ void EventGenerator_Ndecay(TString Output_Name,Int_t Evt_number){ // A, Z of the
   // Double_t Beta = 0.4;
   Double_t Beta_sig = 0.;
   Double_t E_BW = 1.; //Decay Energy
-  Double_t W_BW = 0.5; //Decay Width //-1 for uniform distribution //-2 make delta
-  Int_t N = 2; //Number of neutrons
+  Double_t W_BW = -2; //Decay Width //-1 for uniform distribution //-2 make delta
+  Int_t N = 1; //Number of neutrons
   Int_t FSI_nn; //decay mode options
   Int_t SEQ_Decay; //decay mode options
   Double_t E_DIN = 0.; //decay mode parameter
@@ -660,7 +660,7 @@ void EventGenerator_Ndecay(TString Output_Name,Int_t Evt_number){ // A, Z of the
 
   Int_t i_counter = 0;
 
-  Double_t Delta = 0.;
+  Double_t Delta = 2.;
   
   //Nbr of simulated events loop
   for(int i = 0 ; i < Nb ; i++){
