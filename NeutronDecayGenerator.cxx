@@ -1,3 +1,17 @@
+/******************************************************************************
+ *   Copyright (C) 2025       						      *
+ *               - Aldric Revel, MSU, USA                                     *
+ *               - Jose Luis Rodriguez-Sánchez, University of Coruña, Spain   *
+ *                                                                            *
+ *             This software is distributed under the terms of the            *
+ *                 GNU General Public Licence (GPL) version 3,                *
+ *                    copied verbatim in the file "LICENSE".                  *
+ *                                                                            *
+ * In applying this license GSI does not waive the privileges and immunities  *
+ * granted to it by virtue of its status as an Intergovernmental Organization *
+ * or submit itself to any jurisdiction.                                      *
+ ******************************************************************************/
+
 #include "Bytes.h"
 #include "TLegend.h"
 #include "TMath.h"
@@ -32,24 +46,24 @@
 
 using namespace std;
 
-Double_t VMOD(Double_t *vec) {
-  Double_t res = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+double VMOD(double *vec) {
+  double res = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
   return res;
 }
 
-Double_t VoV(Double_t *V, Double_t *W) { // scalar product
-  Double_t res = V[0] * W[0] + V[1] * W[1] + V[2] * W[2];
+double VoV(double *V, double *W) { // scalar product
+  double res = V[0] * W[0] + V[1] * W[1] + V[2] * W[2];
   return res;
 }
 
-Double_t Cnn_0(Double_t X, Double_t r0) { // For nn-FSI in direct decay
+double Cnn_0(double X, double r0) { // For nn-FSI in direct decay
 
-  Double_t hc, f0, d0;
+  double hc, f0, d0;
   hc = 197.3; //[MeVfm]
   f0 = 18.5;  // nn scatt. length [fm]
   d0 = 2.8;   // effective range  [fm]
-  Double_t a, b, Ref, Imf, f_2, B0, Bi, pi, F1, F2;
-  Double_t res = -40000;
+  double a, b, Ref, Imf, f_2, B0, Bi, pi, F1, F2;
+  double res = -40000;
 
   if (r0 == 0.0) {
     res = 1.;
@@ -82,35 +96,34 @@ Double_t Cnn_0(Double_t X, Double_t r0) { // For nn-FSI in direct decay
   return res;
 }
 
-Double_t intBi(Double_t Y, Double_t r0, Double_t t0, Double_t rT, Double_t G,
-               Double_t Mv, Double_t rho, Double_t f_2, Double_t k,
-               Double_t Imf, Double_t qT, Double_t q0,
-               Double_t Ref) { // (X,Y) = (rT,rL)
+double intBi(double Y, double r0, double t0, double rT, double G, double Mv,
+             double rho, double f_2, double k, double Imf, double qT, double q0,
+             double Ref) { // (X,Y) = (rT,rL)
 
-  Double_t hc, rL, r;
+  double hc, rL, r;
   hc = 197.3; // hc [MeVfm]
 
   rL = Y;
   r = TMath::Sqrt(rT * rT + rL * rL);
   // A  = (r0*t0)/(G*TMath::Sqrt(t0*t0+(Mv*r0)*(Mv*r0)));
 
-  Double_t res = rT *
-                 TMath::Exp(-(rT / (2. * r0)) * (rT / (2. * r0)) -
-                            (rL / (2. * G * rho)) * (rL / (2. * G * rho))) *
-                 (f_2 / (2. * r * r) +
-                  (Ref * cos(k * r / hc) - Imf * TMath::Sin(k * r / hc)) / r *
-                      TMath::BesselJ0(.5 * qT * rT / hc) *
-                      TMath::Cos(q0 * rL / (2. * G * Mv * hc)));
+  double res = rT *
+               TMath::Exp(-(rT / (2. * r0)) * (rT / (2. * r0)) -
+                          (rL / (2. * G * rho)) * (rL / (2. * G * rho))) *
+               (f_2 / (2. * r * r) +
+                (Ref * cos(k * r / hc) - Imf * TMath::Sin(k * r / hc)) / r *
+                    TMath::BesselJ0(.5 * qT * rT / hc) *
+                    TMath::Cos(q0 * rL / (2. * G * Mv * hc)));
 
   return res;
 }
 
-Double_t Integrate_BI(Double_t r0, Double_t t0, Double_t G, Double_t Mv,
-                      Double_t rho, Double_t f_2, Double_t k, Double_t Imf,
-                      Double_t qT, Double_t q0, Double_t Ref) {
+double Integrate_BI(double r0, double t0, double G, double Mv, double rho,
+                    double f_2, double k, double Imf, double qT, double q0,
+                    double Ref) {
 
-  Double_t intXY, step, x1, xn, x2, intX, rT;
-  Int_t i, j, N;
+  double intXY, step, x1, xn, x2, intX, rT;
+  int i, j, N;
   step = 1.; // 0.05; //size of the integration step
   x1 = 0.;   // start of the integration
   x2 = 20.;  // 5. //end of the integration
@@ -132,25 +145,25 @@ Double_t Integrate_BI(Double_t r0, Double_t t0, Double_t G, Double_t Mv,
   return intXY;
 }
 
-Double_t Cnn_sequential(Double_t *p1, Double_t *p2, Double_t r0,
-                        Double_t t0) { // eq (21)
+double Cnn_sequential(double *p1, double *p2, double r0,
+                      double t0) { // eq (21)
 
-  Int_t i;
-  Double_t hc, f0, d0;
+  int i;
+  double hc, f0, d0;
   hc = 197.3; //[MeVfm]
   f0 = 18.5;  // nn scatt. length [fm]
   d0 = 2.8;   // effective range  [fm]
-  Double_t a, b, Ref, Imf, f_2, B0, Bi, pi, integralBi, intWd, q, q0, k, Mv, G,
+  double a, b, Ref, Imf, f_2, B0, Bi, pi, integralBi, intWd, q, q0, k, Mv, G,
       qT, rho, u, C, mu, nu, tab;
-  Double_t res = -40000;
-  Double_t v[3];
+  double res = -40000;
+  double v[3];
 
   if (r0 == 0.) {
     res = 1.;
 
   } else if (r0 <
              1.1) { //  modified on 11th december 2019 (initial value: r0<1.5)
-    cout << "r0 too small" << endl;
+    std::cout << "r0 too small" << std::endl;
 
   } else {
     pi = acos(-1.);
@@ -189,21 +202,21 @@ Double_t Cnn_sequential(Double_t *p1, Double_t *p2, Double_t r0,
   return res;
 }
 
-Double_t Estar1n(Double_t mn, Double_t mf, Double_t *Pnn1,
-                 Double_t *Pnn3) { // Calculate Estar if only one neutron is
-                                   // seen in the detector
-  Double_t res;
+double Estar1n(double mn, double mf, double *Pnn1,
+               double *Pnn3) { // Calculate Estar if only one neutron is
+                               // seen in the detector
+  double res;
   res = TMath::Sqrt(mf * mf + mn * mn + 2 * Pnn1[3] * Pnn3[3] -
                     2 * VoV(Pnn1, Pnn3)) -
         mf - mn;
   return res;
 }
 
-Double_t
-Estar(Double_t mn, Double_t mf, Double_t *Pnn1, Double_t *Pnn2,
-      Double_t *Pnn3) { // Calculate Estar if the 2 neutrons are seen as one
-  Double_t res;
-  Double_t Pnn[4];
+double
+Estar(double mn, double mf, double *Pnn1, double *Pnn2,
+      double *Pnn3) { // Calculate Estar if the 2 neutrons are seen as one
+  double res;
+  double Pnn[4];
   Pnn[0] = (Pnn1[0] + Pnn2[0]) / 2;
   Pnn[1] = (Pnn1[1] + Pnn2[1]) / 2;
   Pnn[2] = (Pnn1[2] + Pnn2[2]) / 2;
@@ -215,9 +228,8 @@ Estar(Double_t mn, Double_t mf, Double_t *Pnn1, Double_t *Pnn2,
   return res;
 }
 
-Double_t Estar2n(Double_t mn, Double_t mf, Double_t *Pnn1, Double_t *Pnn2,
-                 Double_t *Pnn3) {
-  Double_t res;
+double Estar2n(double mn, double mf, double *Pnn1, double *Pnn2, double *Pnn3) {
+  double res;
   res = TMath::Sqrt(mf * mf + 2 * mn * mn + 2 * Pnn1[3] * Pnn3[3] -
                     2 * VoV(Pnn1, Pnn3) + 2 * Pnn2[3] * Pnn3[3] -
                     2 * VoV(Pnn2, Pnn3) + 2 * Pnn2[3] * Pnn1[3] -
@@ -226,8 +238,8 @@ Double_t Estar2n(Double_t mn, Double_t mf, Double_t *Pnn1, Double_t *Pnn2,
   return res;
 }
 
-void ZBOOST(Double_t *P, Double_t beta) {
-  Double_t gamma, Ppar, Etot;
+void ZBOOST(double *P, double beta) {
+  double gamma, Ppar, Etot;
   gamma = 1. / sqrt(1. - beta * beta);
   Ppar = P[2];
   Etot = P[3];
@@ -235,11 +247,11 @@ void ZBOOST(Double_t *P, Double_t beta) {
   P[3] = gamma * (Etot + beta * Ppar);
 }
 
-void BOOST(Double_t *P, Double_t *beta) {
+void BOOST(double *P, double *beta) {
   // Variables
-  Int_t i;
-  Double_t mB, gamma, BoP, Ppar, Etot;
-  Double_t Pper[3];
+  int i;
+  double mB, gamma, BoP, Ppar, Etot;
+  double Pper[3];
 
   // BOOST
   mB = VMOD(beta);
@@ -264,8 +276,8 @@ void BOOST(Double_t *P, Double_t *beta) {
   }
 }
 
-Double_t dNdp3(Double_t a1, Double_t a2, Double_t a3, Double_t E, Double_t p3) {
-  Double_t E3, res;
+double dNdp3(double a1, double a2, double a3, double E, double p3) {
+  double E3, res;
   E3 = sqrt(a3 * a3 + p3 * p3);
   res = (p3 * p3 / E3) *
         sqrt(fabs((E * E + a3 * a3 - 2. * E * E3 - (a1 + a2) * (a1 + a2)) *
@@ -274,14 +286,14 @@ Double_t dNdp3(Double_t a1, Double_t a2, Double_t a3, Double_t E, Double_t p3) {
   return res;
 }
 
-void PHASE_3(Double_t a1, Double_t a2, Double_t a3, Double_t Ed, Double_t *w1,
-             Double_t *w2, Double_t *w3, TRandom *Rand_angle) {
+void PHASE_3(double a1, double a2, double a3, double Ed, double *w1, double *w2,
+             double *w3, TRandom *Rand_angle) {
   // Variables
-  Int_t Ndiv = 200;
-  Double_t ran[2];
-  Double_t beta[3];
-  Double_t E, p3M, M12, p3, p1, Pold, Fold, Pmax, Fmax, F3, step, Ec2n, Enn,
-      the, phi;
+  int Ndiv = 200;
+  double ran[2];
+  double beta[3];
+  double E, p3M, M12, p3, p1, Pold, Fold, Pmax, Fmax, F3, step, Ec2n, Enn, the,
+      phi;
 
   // 3rd particle + 2-body phase space
   E = a1 + a2 + a3 + Ed;
@@ -344,10 +356,10 @@ void PHASE_3(Double_t a1, Double_t a2, Double_t a3, Double_t Ed, Double_t *w1,
   BOOST(w1, beta);
 }
 
-Double_t R_2(Double_t a1, Double_t a2, Double_t Ed, Double_t Er) {
+double R_2(double a1, double a2, double Ed, double Er) {
 
-  Double_t m1, m2, Ex, E2, E, R_0;
-  Double_t res;
+  double m1, m2, Ex, E2, E, R_0;
+  double res;
 
   m1 = a1;
   m2 = a2;
@@ -367,17 +379,17 @@ Double_t R_2(Double_t a1, Double_t a2, Double_t Ed, Double_t Er) {
   return res;
 }
 
-Double_t
-PHASE2x2(Double_t a1, Double_t a2, Double_t a3, Double_t Ed, Double_t *w1,
-         Double_t *w2, Double_t *w3, TRandom *Rand_angle, Double_t A,
+double
+PHASE2x2(double a1, double a2, double a3, double Ed, double *w1, double *w2,
+         double *w3, TRandom *Rand_angle, double A,
          TF1 *BW) { // sequential decay (give back resonance energy selected
 
-  Int_t i, l;
-  Double_t beta[3];
-  Double_t ran[2];
-  Double_t E23, the, phi;
-  Double_t m1, m2, Ex, M12, Pcm;
-  Double_t v1[4], v2[4];
+  int i, l;
+  double beta[3];
+  double ran[2];
+  double E23, the, phi;
+  double m1, m2, Ex, M12, Pcm;
+  double v1[4], v2[4];
 
   // Check first phase space......:
   l = 0;
@@ -454,9 +466,8 @@ PHASE2x2(Double_t a1, Double_t a2, Double_t a3, Double_t Ed, Double_t *w1,
   return E23;
 }
 
-Double_t DALITZ(Double_t m_j, Double_t m_i, Double_t Ed, Double_t *P_i,
-                Double_t *P_j) {
-  Double_t res, M_ij;
+double DALITZ(double m_j, double m_i, double Ed, double *P_i, double *P_j) {
+  double res, M_ij;
   M_ij =
       m_i * m_i + m_j * m_j + 2 * P_i[3] * P_j[3] - 2 * VoV(P_i, P_j); // M_ij²
   res = (M_ij - (m_i + m_j) * (m_i + m_j)) /
@@ -464,11 +475,11 @@ Double_t DALITZ(Double_t m_j, Double_t m_i, Double_t Ed, Double_t *P_i,
   return res;
 }
 
-void PHASE_2(Double_t a1, Double_t a2, Double_t Ed, Double_t *w1, Double_t *w2,
+void PHASE_2(double a1, double a2, double Ed, double *w1, double *w2,
              TRandom *Rand_angle) {
   int i;
-  Double_t the, phi, p1, Ex;
-  Double_t ran[2];
+  double the, phi, p1, Ex;
+  double ran[2];
 
   Ex = a1 + a2 + Ed;
   p1 = sqrt(fabs((Ex * Ex - (a1 + a2) * (a1 + a2)) *
@@ -499,21 +510,20 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
                            const int decay_opt = 0) {
 
   // Parameters of the Simulation
-  Double_t mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
-  Double_t r0_init = 1.5;            // as defined in Lednicky paper
-  Double_t Beta =
+  double mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
+  double r0_init = 1.5;            // as defined in Lednicky paper
+  double Beta =
       TMath::Sqrt(1. - (mf / (Ekin * A + mf)) * (mf / (Ekin * A + mf)));
-  Double_t Beta_sig = 0.;
-  Double_t E_BW = 1.; // Decay Energy
-  Double_t W_BW =
-      -2;          // Decay Width //-1 for uniform distribution //-2 make delta
-  Int_t N = 1;     // Number of neutrons
-  Int_t FSI_nn;    // decay mode options
-  Int_t SEQ_Decay; // decay mode options
-  Double_t E_DIN = 0.; // decay mode parameter
-  Double_t W_DIN = 0.; // decay mode parameter
-  Double_t Er_BW = 0.; // decay mode parameter
-  Double_t Wr_BW = 0.; // decay mode parameter
+  double Beta_sig = 0.;
+  double E_BW = 1.; // Decay Energy
+  double W_BW = -2; // Decay Width //-1 for uniform distribution //-2 make delta
+  int N = 1;        // Number of neutrons
+  int FSI_nn;       // decay mode options
+  int SEQ_Decay;    // decay mode options
+  double E_DIN = 0.; // decay mode parameter
+  double W_DIN = 0.; // decay mode parameter
+  double Er_BW = 0.; // decay mode parameter
+  double Wr_BW = 0.; // decay mode parameter
 
   TString outfileName = Output_Name + (TString) ".out";
   ofstream outfile(outfileName, std::ofstream::out);
@@ -547,76 +557,76 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
   }
 
   // Variables declaration
-  Double_t amu = 931.494028;            // MeV/c2
-  Double_t c = 299792458;               // m/s
-  Double_t hc = 197.3269788;            // MeV.fm
-  Double_t h_barC_MeV_fm = 197.3269788; // MeV.fm
-  Int_t Nb = Evt_number;
-  Double_t a1, a2, a3;
-  Double_t Pnn1[4], Pnn2[4], Pnn3[4]; // 4-vector with 2n
-  Double_t Pn1[4], Pn2[4];            // 4-vector with 1n
-  Double_t Pn[4], Pf[4];              // 4-vector with 1n
-  Double_t mn = 939.565;              // MeV/c2
+  double amu = 931.494028;            // MeV/c2
+  double c = 299792458;               // m/s
+  double hc = 197.3269788;            // MeV.fm
+  double h_barC_MeV_fm = 197.3269788; // MeV.fm
+  int Nb = Evt_number;
+  double a1, a2, a3;
+  double Pnn1[4], Pnn2[4], Pnn3[4]; // 4-vector with 2n
+  double Pn1[4], Pn2[4];            // 4-vector with 1n
+  double Pn[4], Pf[4];              // 4-vector with 1n
+  double mn = 939.565;              // MeV/c2
 
-  Double_t r0, t0, Gam_res;
-  Double_t Cnn_max; //= Cnn_0(0.,r0); //max value of the C_nn correlation in
-                    // order to normalize it from 0 to 1
-  Double_t Er, E23, C_nn_seq;
+  double r0, t0, Gam_res;
+  double Cnn_max; //= Cnn_0(0.,r0); //max value of the C_nn correlation in
+                  // order to normalize it from 0 to 1
+  double Er, E23, C_nn_seq;
 
   char *file_name_1n;
   char *file_name_2n;
   int f1;
   int f2;
 
-  Double_t b_beam, gamma_beam;
+  double b_beam, gamma_beam;
 
   // BRANCH VARIABLES
-  Double_t Ed;
-  Double_t Pn_X;
-  Double_t Pn_Y;
-  Double_t Pn_Z;
-  Double_t Pn_E;
-  Double_t Pf_X;
-  Double_t Pf_Y;
-  Double_t Pf_Z;
-  Double_t Pf_E;
-  Double_t Estar_1n;
+  double Ed;
+  double Pn_X;
+  double Pn_Y;
+  double Pn_Z;
+  double Pn_E;
+  double Pf_X;
+  double Pf_Y;
+  double Pf_Z;
+  double Pf_E;
+  double Estar_1n;
 
-  vector<Double_t> *m_nn = new vector<Double_t>;
-  vector<Double_t> *m_fn1 = new vector<Double_t>;
-  vector<Double_t> *m_fn2 = new vector<Double_t>;
-  vector<Double_t> *E_star2n = new vector<Double_t>;
+  vector<double> *m_nn = new vector<double>;
+  vector<double> *m_fn1 = new vector<double>;
+  vector<double> *m_fn2 = new vector<double>;
+  vector<double> *E_star2n = new vector<double>;
 
-  vector<Double_t> *E_star2n_n1 = new vector<Double_t>;
-  vector<Double_t> *E_star2n_n2 = new vector<Double_t>;
-  vector<Double_t> *theta_n_n = new vector<Double_t>;
-  vector<Double_t> *theta_fn1_n =
-      new vector<Double_t>; // angle between p_fn1 and pn2
-  vector<Double_t> *theta_fn2_n =
-      new vector<Double_t>; // angle between p_fn2 and pn1
-  vector<Double_t> *theta_nn1_f =
-      new vector<Double_t>; // angle between pn1n2 and pf
-  vector<Double_t> *theta_nn2_f =
-      new vector<Double_t>; // angle between pn2n1 and pf
-  vector<Double_t> *theta_kY_1 =
-      new vector<Double_t>; // angle define in 6Be paper k2->f k1->n1
-  vector<Double_t> *theta_kT_1 =
-      new vector<Double_t>; // angle define in 6Be paper with k2->n2 k1->n1
-  vector<Double_t> *Ex_Y_1 =
-      new vector<Double_t>; // energy define in 6Be paper k2->f k1->n1
-  vector<Double_t> *Ex_T_1 =
-      new vector<Double_t>; // energy define in 6Be paper with k2->n2 k1->n1
-  vector<Double_t> *theta_kY_2 =
-      new vector<Double_t>; // angle define in 6Be paper k2->f k1->n1
-  vector<Double_t> *theta_kT_2 =
-      new vector<Double_t>; // angle define in 6Be paper with k2->n2 k1->n1
-  vector<Double_t> *Ex_Y_2 =
-      new vector<Double_t>; // energy define in 6Be paper k2->f k1->n1
-  vector<Double_t> *Ex_T_2 =
-      new vector<Double_t>; // energy define in 6Be paper with k2->n2 k1->n1
-  Double_t q; // argument to calculate before to use give it to C_nn
+  vector<double> *E_star2n_n1 = new vector<double>;
+  vector<double> *E_star2n_n2 = new vector<double>;
+  vector<double> *theta_n_n = new vector<double>;
+  vector<double> *theta_fn1_n =
+      new vector<double>; // angle between p_fn1 and pn2
+  vector<double> *theta_fn2_n =
+      new vector<double>; // angle between p_fn2 and pn1
+  vector<double> *theta_nn1_f =
+      new vector<double>; // angle between pn1n2 and pf
+  vector<double> *theta_nn2_f =
+      new vector<double>; // angle between pn2n1 and pf
+  vector<double> *theta_kY_1 =
+      new vector<double>; // angle define in 6Be paper k2->f k1->n1
+  vector<double> *theta_kT_1 =
+      new vector<double>; // angle define in 6Be paper with k2->n2 k1->n1
+  vector<double> *Ex_Y_1 =
+      new vector<double>; // energy define in 6Be paper k2->f k1->n1
+  vector<double> *Ex_T_1 =
+      new vector<double>; // energy define in 6Be paper with k2->n2 k1->n1
+  vector<double> *theta_kY_2 =
+      new vector<double>; // angle define in 6Be paper k2->f k1->n1
+  vector<double> *theta_kT_2 =
+      new vector<double>; // angle define in 6Be paper with k2->n2 k1->n1
+  vector<double> *Ex_Y_2 =
+      new vector<double>; // energy define in 6Be paper k2->f k1->n1
+  vector<double> *Ex_T_2 =
+      new vector<double>; // energy define in 6Be paper with k2->n2 k1->n1
+  double q;               // argument to calculate before to use give it to C_nn
 
-  Double_t gamma_n[2], beta_n[2]; // gamma and beta of the two neutrons
+  double gamma_n[2], beta_n[2]; // gamma and beta of the two neutrons
 
   auto Rand_angle = new TRandom3(0); // random distribution for the angle
   auto Rand = new TRandom3(0);       // random distribution for the energy Ed
@@ -638,11 +648,11 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
   auto Rand_2n = new TRandom3(0);
 
   // angle_n_n in center of mass calculation
-  Double_t P_n1[4], P_n2[4], P_f[4], P_tot[4]; // 4-vector
-  Double_t P_n1n2[4], P_n2n1[4], P_fn1[4], P_fn2[4];
-  Double_t kx_Y_1[4], kx_T_1[4], ky_Y_1[4], ky_T_1[4];
-  Double_t kx_Y_2[4], kx_T_2[4], ky_Y_2[4], ky_T_2[4];
-  Double_t b_boost[3];
+  double P_n1[4], P_n2[4], P_f[4], P_tot[4]; // 4-vector
+  double P_n1n2[4], P_n2n1[4], P_fn1[4], P_fn2[4];
+  double kx_Y_1[4], kx_T_1[4], ky_Y_1[4], ky_T_1[4];
+  double kx_Y_2[4], kx_T_2[4], ky_Y_2[4], ky_T_2[4];
+  double b_boost[3];
 
   // Histogram to visualize the nn-FSI correlation function
   auto h1_C_nn = new TH1D("h1_C_nn", "h1_C_nn", 200, 0, 10);
@@ -653,12 +663,12 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
                                 // in case of sequential decay
 
   // For simulation with Breit Wigner in Input
-  Double_t Xo_r = E_BW; // Centroid BW
-  Double_t Wo_r = W_BW; // GAMMA BW
+  double Xo_r = E_BW; // Centroid BW
+  double Wo_r = W_BW; // GAMMA BW
   // Breit Wigner parameters
-  Double_t mu_r = 931.5 * A / (A + 1);
-  Double_t Ri_r = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
-  Double_t rho_o_r = sqrt(2 * mu_r * Xo_r) * (Ri_r / hc);
+  double mu_r = 931.5 * A / (A + 1);
+  double Ri_r = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
+  double rho_o_r = sqrt(2 * mu_r * Xo_r) * (Ri_r / hc);
 
   std::stringstream name;
   name << "Ed_BW_Er_" << E_BW << "_Gam_" << W_BW;
@@ -672,12 +682,12 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
   Ed_BW->SetParameter(3, Wo_r * (Ri_r / hc) / rho_o_r / 2.);
 
   // For simulation with Breit Wigner in Sequential Decay
-  Double_t Xo_s = Er_BW; // Centroid BW
-  Double_t Wo_s = Wr_BW; // GAMMA BW
+  double Xo_s = Er_BW; // Centroid BW
+  double Wo_s = Wr_BW; // GAMMA BW
   // Breit Wigner parameters
-  Double_t mu_s = 931.5 * A / (A + 1);
-  Double_t Ri_s = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
-  Double_t rho_o_s = sqrt(2 * mu_s * Xo_s) * (Ri_s / hc);
+  double mu_s = 931.5 * A / (A + 1);
+  double Ri_s = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
+  double rho_o_s = sqrt(2 * mu_s * Xo_s) * (Ri_s / hc);
 
   std::stringstream name_s;
   name_s << "ESeq_BW_Er_" << Er_BW << "_Gam_" << Wr_BW;
@@ -691,13 +701,13 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
   ESeq_BW->SetParameter(3, Wo_s * (Ri_s / hc) / rho_o_s / 2.);
 
   // For dineutron decay
-  Double_t Xo = E_DIN; // 0.1; //Centroid BW
-  Double_t Wo = W_DIN; // 0.1; //GAMMA BW
+  double Xo = E_DIN; // 0.1; //Centroid BW
+  double Wo = W_DIN; // 0.1; //GAMMA BW
 
   // Breit Wigner parameters
-  Double_t mu = 931.5 * A / (A + 1);
-  Double_t Ri = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
-  Double_t rho_o = sqrt(2 * mu * Xo) * (Ri / hc);
+  double mu = 931.5 * A / (A + 1);
+  double Ri = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
+  double rho_o = sqrt(2 * mu * Xo) * (Ri / hc);
 
   auto BW_Dineutron = new TF1(
       "BW_Dineutron",
@@ -749,13 +759,13 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
   }
 
   // Variables for C_nn test
-  Double_t Ran, Cnn_val;
-  Int_t Er_num = 1;
-  Int_t Gam_num = 1;
+  double Ran, Cnn_val;
+  int Er_num = 1;
+  int Gam_num = 1;
 
-  Int_t i_counter = 0;
+  int i_counter = 0;
 
-  Double_t Delta = 2.;
+  double Delta = 2.;
 
   // Nbr of simulated events loop
   for (Long64_t i = 0; i < Nb; i++) {
@@ -832,13 +842,13 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
       Estar_1n = Estar1n(mn, mf, Pn, Pf);
 
       // Generate Target Position
-      Double_t x = 0.;
-      Double_t y = 0.;
-      Double_t z = 0.;
+      double x = 0.;
+      double y = 0.;
+      double z = 0.;
 
-      // Double_t x = Rand->Gaus(0., 1.);       // cm
-      // Double_t y = Rand->Gaus(0., 1.);       // cm
-      // Double_t z = Rand->Uniform(-2.5, 2.5); // cm
+      // double x = Rand->Gaus(0., 1.);       // cm
+      // double y = Rand->Gaus(0., 1.);       // cm
+      // double z = Rand->Uniform(-2.5, 2.5); // cm
 
       if (!isnan(Pf[2])) {
 
@@ -939,13 +949,13 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
 
       // Making input file for R3BRoot simulation
       // Generate Target Position
-      Double_t x = 0.;
-      Double_t y = 0.;
-      Double_t z = 0.;
+      double x = 0.;
+      double y = 0.;
+      double z = 0.;
 
-      // Double_t x = Rand->Gaus(0., 1.);       // cm
-      // Double_t y = Rand->Gaus(0., 1.);       // cm
-      // Double_t z = Rand->Uniform(-2.5, 2.5); // cm
+      // double x = Rand->Gaus(0., 1.);       // cm
+      // double y = Rand->Gaus(0., 1.);       // cm
+      // double z = Rand->Uniform(-2.5, 2.5); // cm
 
       outfile << i_counter << "  " << 3 << "\n";
       outfile << -1 << "  " << Z << "  " << A << "  " << Pnn3[0] / 1000. << "  "
@@ -1010,7 +1020,7 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
       BOOST(P_n2, b_boost);
       BOOST(P_f, b_boost);
 
-      Double_t theta_n_n_bfLAND = TMath::ACos(
+      double theta_n_n_bfLAND = TMath::ACos(
           VoV(P_n1, P_n2) / (TMath::Sqrt(P_n1[0] * P_n1[0] + P_n1[1] * P_n1[1] +
                                          P_n1[2] * P_n1[2]) *
                              TMath::Sqrt(P_n2[0] * P_n2[0] + P_n2[1] * P_n2[1] +
@@ -1032,24 +1042,24 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
       P_fn2[1] = -P_f[1] + P_n2[1];
       P_fn2[2] = -P_f[2] + P_n2[2];
 
-      Double_t theta_fn1_n_bfLAND =
+      double theta_fn1_n_bfLAND =
           TMath::ACos(VoV(P_fn1, P_n2) /
                       (TMath::Sqrt(P_fn1[0] * P_fn1[0] + P_fn1[1] * P_fn1[1] +
                                    P_fn1[2] * P_fn1[2]) *
                        TMath::Sqrt(P_n2[0] * P_n2[0] + P_n2[1] * P_n2[1] +
                                    P_n2[2] * P_n2[2])));
-      Double_t theta_fn2_n_bfLAND =
+      double theta_fn2_n_bfLAND =
           TMath::ACos(VoV(P_n1, P_fn2) /
                       (TMath::Sqrt(P_n1[0] * P_n1[0] + P_n1[1] * P_n1[1] +
                                    P_n1[2] * P_n1[2]) *
                        TMath::Sqrt(P_fn2[0] * P_fn2[0] + P_fn2[1] * P_fn2[1] +
                                    P_fn2[2] * P_fn2[2])));
-      Double_t theta_nn1_f_bfLAND = TMath::ACos(
+      double theta_nn1_f_bfLAND = TMath::ACos(
           VoV(P_n1n2, P_f) /
           (TMath::Sqrt(P_n1n2[0] * P_n1n2[0] + P_n1n2[1] * P_n1n2[1] +
                        P_n1n2[2] * P_n1n2[2]) *
            TMath::Sqrt(P_f[0] * P_f[0] + P_f[1] * P_f[1] + P_f[2] * P_f[2])));
-      Double_t theta_nn2_f_bfLAND = TMath::ACos(
+      double theta_nn2_f_bfLAND = TMath::ACos(
           VoV(P_f, P_n2n1) /
           (TMath::Sqrt(P_f[0] * P_f[0] + P_f[1] * P_f[1] + P_f[2] * P_f[2]) *
            TMath::Sqrt(P_n2n1[0] * P_n2n1[0] + P_n2n1[1] * P_n2n1[1] +
@@ -1077,19 +1087,19 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
       ky_T_1[2] =
           (mf * (P_n1[2] + P_n2[2]) - (mn + mn) * P_f[2]) / (2 * mn + mf);
 
-      Double_t theta_kY_1_bfLAND =
+      double theta_kY_1_bfLAND =
           TMath::ACos(VoV(kx_Y_1, ky_Y_1) / (VMOD(kx_Y_1) * VMOD(ky_Y_1)));
-      Double_t theta_kT_1_bfLAND =
+      double theta_kT_1_bfLAND =
           TMath::ACos(VoV(kx_T_1, ky_T_1) / (VMOD(kx_T_1) * VMOD(ky_T_1)));
 
-      Double_t Ex_T_1_bfLAND = (mn + mn) *
-                               (kx_T_1[0] * kx_T_1[0] + kx_T_1[1] * kx_T_1[1] +
-                                kx_T_1[2] * kx_T_1[2]) /
-                               (2 * mn * mn);
-      Double_t Ex_Y_1_bfLAND = (mn + mf) *
-                               (kx_Y_1[0] * kx_Y_1[0] + kx_Y_1[1] * kx_Y_1[1] +
-                                kx_Y_1[2] * kx_Y_1[2]) /
-                               (2 * mn * mf);
+      double Ex_T_1_bfLAND = (mn + mn) *
+                             (kx_T_1[0] * kx_T_1[0] + kx_T_1[1] * kx_T_1[1] +
+                              kx_T_1[2] * kx_T_1[2]) /
+                             (2 * mn * mn);
+      double Ex_Y_1_bfLAND = (mn + mf) *
+                             (kx_Y_1[0] * kx_Y_1[0] + kx_Y_1[1] * kx_Y_1[1] +
+                              kx_Y_1[2] * kx_Y_1[2]) /
+                             (2 * mn * mf);
 
       kx_Y_2[0] = (mf * P_n2[0] - mn * P_f[0]) / (mn + mf);
       kx_Y_2[1] = (mf * P_n2[1] - mn * P_f[1]) / (mn + mf);
@@ -1113,19 +1123,19 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
       ky_T_2[2] =
           (mf * (P_n2[2] + P_n1[2]) - (mn + mn) * P_f[2]) / (2 * mn + mf);
 
-      Double_t theta_kY_2_bfLAND =
+      double theta_kY_2_bfLAND =
           TMath::ACos(VoV(kx_Y_2, ky_Y_2) / (VMOD(kx_Y_2) * VMOD(ky_Y_2)));
-      Double_t theta_kT_2_bfLAND =
+      double theta_kT_2_bfLAND =
           TMath::ACos(VoV(kx_T_2, ky_T_2) / (VMOD(kx_T_2) * VMOD(ky_T_2)));
 
-      Double_t Ex_T_2_bfLAND = (mn + mn) *
-                               (kx_T_2[0] * kx_T_2[0] + kx_T_2[1] * kx_T_2[1] +
-                                kx_T_2[2] * kx_T_2[2]) /
-                               (2 * mn * mn);
-      Double_t Ex_Y_2_bfLAND = (mn + mf) *
-                               (kx_Y_2[0] * kx_Y_2[0] + kx_Y_2[1] * kx_Y_2[1] +
-                                kx_Y_2[2] * kx_Y_2[2]) /
-                               (2 * mn * mf);
+      double Ex_T_2_bfLAND = (mn + mn) *
+                             (kx_T_2[0] * kx_T_2[0] + kx_T_2[1] * kx_T_2[1] +
+                              kx_T_2[2] * kx_T_2[2]) /
+                             (2 * mn * mn);
+      double Ex_Y_2_bfLAND = (mn + mf) *
+                             (kx_Y_2[0] * kx_Y_2[0] + kx_Y_2[1] * kx_Y_2[1] +
+                              kx_Y_2[2] * kx_Y_2[2]) /
+                             (2 * mn * mf);
 
       E_star2n->push_back(Estar2n(mn, mf, Pnn1, Pnn2, Pnn3));
       theta_n_n->push_back(theta_n_n_bfLAND);

@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: NeutronDecayGenerator
+Upstream-Contact: Jose Luis Rodriguez Sanchez <j.l.rodriguez.sanchez@udc.es>
+Source: https://github.com/jose-luis-rs/R3B_Neutron_Generator
+
+Files: *
+Copyright: 2025 [see AUTHORS file]
+License: LGPL-3.0-only [see LICENSE file]
