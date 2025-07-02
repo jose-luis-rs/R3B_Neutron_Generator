@@ -832,29 +832,23 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
       Estar_1n = Estar1n(mn, mf, Pn, Pf);
 
       // Generate Target Position
-      //  Double_t x = 0.;//Rand->Gaus(0.,1.5);
-      //  Double_t y = 0.;//Rand->Gaus(0.,1.5);
-      Double_t z = 0.; // Rand->Uniform(-2.5,2.5);
+      Double_t x = 0.;
+      Double_t y = 0.;
+      Double_t z = 0.;
 
-      Double_t x = Rand->Gaus(0., 1.);
-      Double_t y = Rand->Gaus(0., 1.);
-      // Double_t z = Rand->Uniform(-2.5,2.5);
+      // Double_t x = Rand->Gaus(0., 1.);       // cm
+      // Double_t y = Rand->Gaus(0., 1.);       // cm
+      // Double_t z = Rand->Uniform(-2.5, 2.5); // cm
 
       if (!isnan(Pf[2])) {
 
-        outfile << i_counter << "  " << 2 << "  " << 0 << "  " << 0 << "\n";
+        outfile << i_counter << "  " << 2 << "\n";
         outfile << -1 << "  " << Z << "  " << A << "  " << Pf[0] / 1000. << "  "
                 << Pf[1] / 1000. << "  " << Pf[2] / 1000. << "  " << x << "  "
-                << y << "  " << z << "  " << mf / 1000. << "\n";
+                << y << "  " << z << "\n";
         outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pn[0] / 1000.
                 << "  " << Pn[1] / 1000. << "  " << Pn[2] / 1000. << "  " << x
-                << "  " << y << "  " << z << "  " << mn / 1000. << "\n";
-
-        // without the fragment
-        //  outfile << i_counter << "  " << 1 << "  " << 0 << "  " << 0 << "\n";
-        //  outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pn[0]/1000. <<
-        //  "  " << Pn[1]/1000. << "  " << Pn[2]/1000. << "  " << x << "  " << y
-        //  << "  " << z << "  " << mn/1000. << "\n";
+                << "  " << y << "  " << z << "\n";
 
         i_counter++;
       }
@@ -945,24 +939,24 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
 
       // Making input file for R3BRoot simulation
       // Generate Target Position
-      //  Double_t x = 0.;//Rand->Gaus(0.,1.5);
-      //  Double_t y = 0.;//Rand->Gaus(0.,1.5);
-      Double_t z = 0.; // Rand->Uniform(-2.5,2.5);
+      Double_t x = 0.;
+      Double_t y = 0.;
+      Double_t z = 0.;
 
-      Double_t x = Rand->Gaus(0., 1.);
-      Double_t y = Rand->Gaus(0., 1.);
-      // Double_t z = Rand->Uniform(-2.5,2.5);
+      // Double_t x = Rand->Gaus(0., 1.);       // cm
+      // Double_t y = Rand->Gaus(0., 1.);       // cm
+      // Double_t z = Rand->Uniform(-2.5, 2.5); // cm
 
-      outfile << i_counter << "  " << 3 << "  " << 0 << "  " << 0 << "\n";
+      outfile << i_counter << "  " << 3 << "\n";
       outfile << -1 << "  " << Z << "  " << A << "  " << Pnn3[0] / 1000. << "  "
               << Pnn3[1] / 1000. << "  " << Pnn3[2] / 1000. << "  " << x << "  "
-              << y << "  " << z << "  " << mf / 1000. << "\n";
+              << y << "  " << z << "\n";
       outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pnn1[0] / 1000.
               << "  " << Pnn1[1] / 1000. << "  " << Pnn1[2] / 1000. << "  " << x
-              << "  " << y << "  " << z << "  " << mn / 1000. << "\n";
+              << "  " << y << "  " << z << "\n";
       outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pnn2[0] / 1000.
               << "  " << Pnn2[1] / 1000. << "  " << Pnn2[2] / 1000. << "  " << x
-              << "  " << y << "  " << z << "  " << mn / 1000. << "\n";
+              << "  " << y << "  " << z << "\n";
 
       i_counter++;
 
