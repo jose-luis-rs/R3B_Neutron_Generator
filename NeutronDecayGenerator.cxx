@@ -23,8 +23,11 @@
 #include <TVirtualFitter.h>
 #include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -489,14 +492,15 @@ void PHASE_2(Double_t a1, Double_t a2, Double_t Ed, Double_t *w1, Double_t *w2,
 }
 
 // A, Z of the fragment nuclei ex : 27Ne -> 26F -> 24F + 2n  SIMULATION(24,9)
-void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
-                           const int A = 24, const int Z = 9,
+void EventGenerator_Ndecay(const TString Output_Name = "test",
+                           const int Evt_number = 10, const int A = 24,
+                           const int Z = 9,
+                           const double Ekin = 500., // MeV/u
                            const int decay_opt = 0) {
 
   // Parameters of the Simulation
   Double_t mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
   Double_t r0_init = 1.5;            // as defined in Lednicky paper
-  Double_t Ekin = 200.;              // MeV/u
   Double_t Beta =
       TMath::Sqrt(1. - (mf / (Ekin * A + mf)) * (mf / (Ekin * A + mf)));
   Double_t Beta_sig = 0.;
@@ -537,6 +541,9 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
     SEQ_Decay = 2;
     E_DIN = 1.;
     W_DIN = 0.1;
+  } else {
+    std::cout << "This decay mode does not exist." << std::endl;
+    return;
   }
 
   // Variables declaration
@@ -611,24 +618,24 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
 
   Double_t gamma_n[2], beta_n[2]; // gamma and beta of the two neutrons
 
-  TRandom3 *Rand_angle = new TRandom3(0); // random distribution for the angle
-  TRandom3 *Rand = new TRandom3(0); // random distribution for the energy Ed
-  TRandom3 *Rand_0 =
+  auto Rand_angle = new TRandom3(0); // random distribution for the angle
+  auto Rand = new TRandom3(0);       // random distribution for the energy Ed
+  auto Rand_0 =
       new TRandom3(0); // random distribution for the C_nn correlations
-  TRandom3 *Dist = new TRandom3(
+  auto Dist = new TRandom3(
       0); // random distribution for the Distance of interaction in LAND
-  TRandom3 *Dist1 = new TRandom3(0);
-  TRandom3 *Dist2 = new TRandom3(0);
-  TRandom3 *Rand_X1 = new TRandom3(0);
-  TRandom3 *Rand_Y1 = new TRandom3(0);
-  TRandom3 *Rand_X2 = new TRandom3(0);
-  TRandom3 *Rand_Y2 = new TRandom3(0);
-  TRandom3 *Rand_Z1 = new TRandom3(0);
-  TRandom3 *Rand_Z2 = new TRandom3(0);
-  TRandom3 *Time1 = new TRandom3(0);
-  TRandom3 *Time2 = new TRandom3(0);
-  TRandom3 *Rand_1n = new TRandom3(0);
-  TRandom3 *Rand_2n = new TRandom3(0);
+  auto Dist1 = new TRandom3(0);
+  auto Dist2 = new TRandom3(0);
+  auto Rand_X1 = new TRandom3(0);
+  auto Rand_Y1 = new TRandom3(0);
+  auto Rand_X2 = new TRandom3(0);
+  auto Rand_Y2 = new TRandom3(0);
+  auto Rand_Z1 = new TRandom3(0);
+  auto Rand_Z2 = new TRandom3(0);
+  auto Time1 = new TRandom3(0);
+  auto Time2 = new TRandom3(0);
+  auto Rand_1n = new TRandom3(0);
+  auto Rand_2n = new TRandom3(0);
 
   // angle_n_n in center of mass calculation
   Double_t P_n1[4], P_n2[4], P_f[4], P_tot[4]; // 4-vector
@@ -638,12 +645,12 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
   Double_t b_boost[3];
 
   // Histogram to visualize the nn-FSI correlation function
-  TH1D *h1_C_nn = new TH1D("h1_C_nn", "h1_C_nn", 200, 0, 10);
-  TH1D *h1_C_nn_seq = new TH1D("h1_C_nn_seq", "h1_C_nn_seq", 200, 0,
-                               10); // from sequential decay
-  TH1D *h1_E_res = new TH1D("h1_E_res", "h1_E_res", 200, 0,
-                            15); // to check the intermediate resonnance energy
-                                 // in case of sequential decay
+  auto h1_C_nn = new TH1D("h1_C_nn", "h1_C_nn", 200, 0, 10);
+  auto h1_C_nn_seq = new TH1D("h1_C_nn_seq", "h1_C_nn_seq", 200, 0,
+                              10); // from sequential decay
+  auto h1_E_res = new TH1D("h1_E_res", "h1_E_res", 200, 0,
+                           15); // to check the intermediate resonnance energy
+                                // in case of sequential decay
 
   // For simulation with Breit Wigner in Input
   Double_t Xo_r = E_BW; // Centroid BW
@@ -652,12 +659,13 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
   Double_t mu_r = 931.5 * A / (A + 1);
   Double_t Ri_r = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
   Double_t rho_o_r = sqrt(2 * mu_r * Xo_r) * (Ri_r / hc);
-  char name[50];
-  int f;
-  f = sprintf(name, "Ed_BW_Er_%f_Gam_%f", E_BW, W_BW);
-  TF1 *Ed_BW = new TF1(
-      name, "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0.,
-      10.);
+
+  std::stringstream name;
+  name << "Ed_BW_Er_" << E_BW << "_Gam_" << W_BW;
+
+  auto Ed_BW = new TF1(
+      name.str().c_str(),
+      "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., 10.);
   Ed_BW->SetParameter(0, Wo_r * (Ri_r / hc) / rho_o_r * Wo_r / 4);
   Ed_BW->SetParameter(1, 2. * mu_r);
   Ed_BW->SetParameter(2, Xo_r);
@@ -670,12 +678,13 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
   Double_t mu_s = 931.5 * A / (A + 1);
   Double_t Ri_s = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
   Double_t rho_o_s = sqrt(2 * mu_s * Xo_s) * (Ri_s / hc);
-  char name_s[50];
-  int f_s;
-  f_s = sprintf(name_s, "ESeq_BW_Er_%f_Gam_%f", Er_BW, Wr_BW);
-  TF1 *ESeq_BW = new TF1(
-      name_s, "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))",
-      0., 5.);
+
+  std::stringstream name_s;
+  name_s << "ESeq_BW_Er_" << Er_BW << "_Gam_" << Wr_BW;
+
+  auto ESeq_BW = new TF1(
+      name_s.str().c_str(),
+      "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., 5.);
   ESeq_BW->SetParameter(0, Wo_s * (Ri_s / hc) / rho_o_s * Wo_s / 4);
   ESeq_BW->SetParameter(1, 2. * mu_s);
   ESeq_BW->SetParameter(2, Xo_s);
@@ -690,7 +699,7 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
   Double_t Ri = 1.4 * (pow(A, 1. / 3.) + pow(1, 1. / 3.));
   Double_t rho_o = sqrt(2 * mu * Xo) * (Ri / hc);
 
-  TF1 *BW_Dineutron = new TF1(
+  auto BW_Dineutron = new TF1(
       "BW_Dineutron",
       "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., 15.);
   BW_Dineutron->SetParameter(0, Wo * (Ri / hc) / rho_o * Wo / 4);
@@ -699,7 +708,7 @@ void EventGenerator_Ndecay(const TString Output_Name, const int Evt_number,
   BW_Dineutron->SetParameter(3, Wo * (Ri / hc) / rho_o / 2.);
 
   TFile hfile(Output_Name + (TString) ".root", "RECREATE");
-  TTree *tree = new TTree("SimuTree", "ROOT TREE"); // Create a ROOT Tree
+  auto tree = new TTree("SimuTree", "ROOT TREE"); // Create a ROOT Tree
 
   tree->Branch("Ed", &Ed);
   tree->Branch("Beta", &b_beam);

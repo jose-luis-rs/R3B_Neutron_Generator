@@ -1,19 +1,37 @@
-# R3B_Neutron_Generator
+## Neutron Decay Event Generator
 
-Use this file to generate input file to be used with the R3BRoot simulation. Allows to generate 1n/2n decay events as well as different decay mechanisms in case of the 2n decay.
+This file is used to generate input data for the **R3BRoot** simulation framework. It supports the generation of 1n and 2n decay events, including multiple decay mechanisms for the 2n decay mode.
 
-Different options can be selected by modifying the file and uncommenting/commenting some parts.
+### Decay Mode Options
 
-Download :
+The type of decay can be configured using the `decay_opt` parameter, which accepts the following values:
 
->git clone https://github.com/aldros/R3B_Neutron_Generator.git
+- `decay_opt = 0` — **Phase space decay**
+- `decay_opt = 1` — **N–N correlations** (based on Lednicky’s formalism)
+- `decay_opt = 2` — **Sequential decay**
+- `decay_opt = 3` — **Dineutron decay**
 
->cd R3B_Neutron_Generator
+### How to Use
 
-To run : 
+Clone the repository:
 
->root
+```bash
+git clone https://github.com/jose-luis-rs/R3B_Neutron_Generator.git
+cd R3B_Neutron_Generator
 
->.L NeutronDecayGenerator.cxx++
+Run the generator using ROOT:
 
->EventGenerator_Ndecay("fileName",10000) //arguments are fileName and number of events to consider
+root -l
+.L NeutronDecayGenerator.cxx++
+EventGenerator_Ndecay("fileName", nb_events, A, Z, Ekin, decay_opt)
+
+
+| Parameter   | Description                              |
+| ----------- | ---------------------------------------- |
+| `fileName`  | Output ROOT file name (string)           |
+| `nb_events` | Number of events to generate (int)       |
+| `A`         | Mass number of the fragment              |
+| `Z`         | Atomic number of the fragment            |
+| `Ekin`      | Kinetic energy in MeV (lab frame)        |
+| `decay_opt` | Decay mode selection (see above options) |
+
