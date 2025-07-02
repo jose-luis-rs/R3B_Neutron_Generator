@@ -758,9 +758,9 @@ void EventGenerator_Ndecay(const TString Output_Name = "test",
   Double_t Delta = 2.;
 
   // Nbr of simulated events loop
-  for (int i = 0; i < Nb; i++) {
+  for (Long64_t i = 0; i < Nb; i++) {
 
-    cout << int(100 * i / Nb) << " %" << '\r' << flush;
+    std::cout << int(100. * i / Nb) << " %" << '\r' << flush;
 
     m_nn->clear();
     theta_n_n->clear();
