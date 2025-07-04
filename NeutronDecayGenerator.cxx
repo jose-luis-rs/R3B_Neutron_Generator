@@ -902,16 +902,14 @@ void Generate_Ndecay(const TString Output_Name = "test",
 
             if (!isnan(Pf[2]))
             {
-
                 outfile << i_counter << "  " << 2 << "\n";
                 outfile << -1 << "  " << Z << "  " << A << "  " << Pf[0] / 1000. << "  " << Pf[1] / 1000. << "  "
-                        << Pf[2] / 1000. << "  " << x << "  " << y << "  " << z << "  " << mf / 1000. << "\n";
+                        << Pf[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
                 outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pn[0] / 1000. << "  " << Pn[1] / 1000. << "  "
-                        << Pn[2] / 1000. << "  " << x << "  " << y << "  " << z << "  " << mn / 1000. << "\n";
+                        << Pn[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
 
                 i_counter++;
             }
-
             tree->Fill();
         }
 
@@ -1013,11 +1011,11 @@ void Generate_Ndecay(const TString Output_Name = "test",
 
             outfile << i_counter << "  " << 3 << "\n";
             outfile << -1 << "  " << Z << "  " << A << "  " << Pnn3[0] / 1000. << "  " << Pnn3[1] / 1000. << "  "
-                    << Pnn3[2] / 1000. << "  " << x << "  " << y << "  " << z << "  " << mf / 1000. << "\n";
+                    << Pnn3[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
             outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pnn1[0] / 1000. << "  " << Pnn1[1] / 1000. << "  "
                     << Pnn1[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
             outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pnn2[0] / 1000. << "  " << Pnn2[1] / 1000. << "  "
-                    << Pnn2[2] / 1000. << "  " << x << "  " << y << "  " << z << "  " << mn / 1000. << "\n";
+                    << Pnn2[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
 
             i_counter++;
 
@@ -1171,7 +1169,6 @@ void Generate_Ndecay(const TString Output_Name = "test",
             {
                 cout << "Problem with the size of the vectors" << endl;
             }
-
             tree->Fill();
         }
     }
