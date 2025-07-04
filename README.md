@@ -7,10 +7,10 @@ This software is distributed under the terms of the GNU Lesser General Public Li
 ### Decay Mode Options
 The type of decay can be configured using the `decay_opt` parameter, which accepts the following values:
 
-- `decay_opt = 0` — **Phase space decay**
-- `decay_opt = 1` — **N–N correlations** (based on Lednicky’s formalism)
-- `decay_opt = 2` — **Sequential decay**
-- `decay_opt = 3` — **Dineutron decay**
+- `decay_opt = 0` — **Basic parameters for 1n decay**
+- `decay_opt = 1` — **N–N correlations for 2n** (based on Lednicky’s formalism)
+- `decay_opt = 2` — **Sequential decay for a 2n decay**
+- `decay_opt = 3` — **Dineutron decay for 2n**
 
 ### How to Use
 
@@ -24,7 +24,7 @@ Run the generator using ROOT:
 
 root -l
 .L NeutronDecayGenerator.cxx++
-EventGenerator_Ndecay("fileName", nb_events, A, Z, Ekin, decay_opt)
+Generate_Ndecay("fileName", nb_events, A, Z, Ekin, decay_opt)
 
 
 | Parameter   | Description                              |
