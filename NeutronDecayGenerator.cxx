@@ -566,6 +566,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
     double W_DIN = 0.; // decay mode parameter
     double Er_BW = 0.; // decay mode parameter
     double Wr_BW = 0.; // decay mode parameter
+    const double fMax_energy_res = 12.;
 
     TString outfileName = Output_Name + (TString) ".out";
     ofstream outfile(outfileName, std::ofstream::out);
@@ -712,7 +713,8 @@ void Generate_Ndecay(const TString Output_Name = "test",
     std::stringstream name;
     name << "Ed_BW_Er_" << E_BW << "_Gam_" << W_BW;
 
-    auto Ed_BW = new TF1(name.str().c_str(), "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., 10.);
+    auto Ed_BW = new TF1(
+        name.str().c_str(), "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., fMax_energy_res);
     Ed_BW->SetParameter(0, Wo_r * (Ri_r / hc) / rho_o_r * Wo_r / 4);
     Ed_BW->SetParameter(1, 2. * mu_r);
     Ed_BW->SetParameter(2, Xo_r);
@@ -729,8 +731,8 @@ void Generate_Ndecay(const TString Output_Name = "test",
     std::stringstream name_s;
     name_s << "ESeq_BW_Er_" << Er_BW << "_Gam_" << Wr_BW;
 
-    auto ESeq_BW =
-        new TF1(name_s.str().c_str(), "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., 5.);
+    auto ESeq_BW = new TF1(
+        name_s.str().c_str(), "([0]*sqrt([1]*x))/(pow((x-[2]),2) + pow(([3]*sqrt([1]*x)),2))", 0., fMax_energy_res);
     ESeq_BW->SetParameter(0, Wo_s * (Ri_s / hc) / rho_o_s * Wo_s / 4);
     ESeq_BW->SetParameter(1, 2. * mu_s);
     ESeq_BW->SetParameter(2, Xo_s);
@@ -850,7 +852,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
         }
         else
         {
-            Ed = Ed_BW->GetRandom(0., 5.);
+            Ed = Ed_BW->GetRandom(0., fMax_energy_res);
         }
 
         if (i % 5000 == 0)
@@ -872,7 +874,6 @@ void Generate_Ndecay(const TString Output_Name = "test",
         /********************1 NEUTRON DECAY SIMULATION*********************/
         if (N == 1)
         {
-
             PHASE_2(mn, mf, Ed, Pn, Pf, Rand_angle);
 
             // Back in the Lab frame
