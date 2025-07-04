@@ -12,8 +12,6 @@
  * or submit itself to any jurisdiction.                                      *
  ******************************************************************************/
 
-#include "Bytes.h"
-#include "TLegend.h"
 #include "TMath.h"
 #include "TPaveText.h"
 #include "TStreamerInfo.h"
@@ -27,9 +25,6 @@
 #include <TGraph.h>
 #include <TH1.h>
 #include <TH1F.h>
-#include <TH2.h>
-#include <TLatex.h>
-#include <TMath.h>
 #include <TMinuit.h>
 #include <TROOT.h>
 #include <TRandom3.h>
@@ -1206,4 +1201,6 @@ void Generate_Ndecay(const TString Output_Name = "test",
     delete theta_kT_2;
     delete Ex_Y_2;
     delete Ex_T_2;
+    
+    return;
 }
