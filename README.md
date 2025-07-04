@@ -24,7 +24,7 @@ Run the generator using ROOT:
 
 root -l
 .L NeutronDecayGenerator.cxx++
-Generate_Ndecay("fileName", nb_events, A, Z, Ekin, decay_opt)
+Generate_Ndecay("fileName", nb_events, A, Z, Ekin, E_BW, W_BW, nb_n, decay_opt)
 
 
 | Parameter   | Description                              |
@@ -34,5 +34,8 @@ Generate_Ndecay("fileName", nb_events, A, Z, Ekin, decay_opt)
 | `A`         | Mass number of the fragment              |
 | `Z`         | Atomic number of the fragment            |
 | `Ekin`      | Kinetic energy in MeV (lab frame)        |
+| `E_BW`      | Average energy for the Breit-Wigner      |
+| `W_BW`      | Sigma of the Breit-Wigner                |
+| `nb_n`      | Number of decay neutrons                 |
 | `decay_opt` | Decay mode selection (see above options) |
 
