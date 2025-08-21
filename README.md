@@ -1,4 +1,6 @@
-## Neutron Decay Event Generator
+## Neutron Decay Event Generator [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](COPYRIGHT)
+[![CI-CD](https://github.com/jose-luis-rs/R3B_Neutron_Generator/actions/workflows/main.yml/badge.svg)](https://github.com/jose-luis-rs/R3B_Neutron_Generator/actions/workflows/main.yml)
+
 This file is used to generate input data for the [R3BRoot](https://github.com/R3BRootGroup/R3BRoot) simulation framework. It supports the generation of 1n and 2n decay events, including multiple decay mechanisms for the 2n decay mode.
 
 ### License
