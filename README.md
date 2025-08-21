@@ -22,10 +22,11 @@ cd R3B_Neutron_Generator
 
 Run the generator using ROOT:
 
-root -l
-.L NeutronDecayGenerator.cxx++
-Generate_Ndecay("fileName", nb_events, A, Z, Ekin, E_BW, W_BW, nb_n, decay_opt)
-
+```bash
+root -l NeutronDecayGenerator.C
+or
+root -l 'NeutronDecayGenerator.C("fileName", nb_events, A, Z, Ekin, E_BW, W_BW, nb_n, decay_opt)'
+```
 
 | Parameter   | Description                              |
 | ----------- | ---------------------------------------- |

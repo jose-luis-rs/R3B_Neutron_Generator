@@ -38,8 +38,24 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <thread>
+#include <chrono>
 
-using namespace std;
+void showProgressBar(int i, int total, int width = 50) {
+    float ratio = i / (total-1.);
+    int c = int(ratio * width);
+
+    std::cout << "Processed: \033[32m" << i << "\033[0m / \033[31m" << total << "\033[0m [";
+
+    for (int j = 0; j < width; j++) {
+        if (j < c) std::cout << "\033[32m█\033[0m";  
+        else       std::cout << "-";
+    }
+
+    std::cout << "] \033[33m" << int(ratio * 100) << "%\033[0m" 
+              << '\r' << std::flush;
+}
 
 double VMOD(double* vec)
 {
@@ -532,7 +548,7 @@ void PHASE_2(double a1, double a2, double Ed, double* w1, double* w2, TRandom* R
 }
 
 // A, Z of the fragment nuclei ex : 27Ne -> 26F -> 24F + 2n  SIMULATION(24,9)
-void Generate_Ndecay(const TString Output_Name = "test",
+void NeutronDecayGenerator(const TString Output_Name = "test",
                      const int Evt_number = 10,
                      const int A = 24,
                      const int Z = 9,
@@ -549,12 +565,16 @@ void Generate_Ndecay(const TString Output_Name = "test",
     // W_BW = -1 corresponds to an uniform distribution between 0 and E_BW in MeV
     // W_BW = -2 corresponds to a delta resonance with an average energy of 2 MeV
     // W_BW > 0 corresponds to a resonance with an average energy of E_BW in MeV and a sigma of W_BW
+    
+    std::cout << std::endl;
+    std::cout << "Running for " <<Evt_number<< " events"<< std::endl;
+    std::cout << "Outgoing fragment A = " <<A<<" , Z = "<<Z<< std::endl;
 
     double Beta_sig = 0.; // Velocity dispersion for beta
 
-    double mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
+    const double mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
     double r0_init = 1.5;            // as defined in Lednicky paper
-    double Beta = TMath::Sqrt(1. - (mf / (Ekin * A + mf)) * (mf / (Ekin * A + mf)));
+    const double Beta = TMath::Sqrt(1. - (mf / (Ekin * A + mf)) * (mf / (Ekin * A + mf)));
     int FSI_nn = 0;    // decay mode options
     int SEQ_Decay = 0; // decay mode options
     double E_DIN = 0.; // decay mode parameter
@@ -569,7 +589,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
     /********PHASE SPACE DECAY************/
     if (decay_opt == 0)
     {
-        std::cout << "Running for 1n decay" << std::endl;
+        std::cout << "Configuration for 1n decay" << std::endl;
     }
     else if (decay_opt == 1)
     {
@@ -582,6 +602,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
     else if (decay_opt == 2)
     {
         /*********SEQUENTIAL DECAY************/
+        std::cout << "Configuration for sequential decay" << std::endl;
         FSI_nn = 1;
         SEQ_Decay = 1;
         r0_init = 1.5;
@@ -591,6 +612,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
     else if (decay_opt == 3)
     {
         /**********DINEUTRON DECAY************/
+        std::cout << "Configuration for dineutron decay" << std::endl;
         FSI_nn = 1;
         SEQ_Decay = 2;
         E_DIN = 1.;
@@ -603,10 +625,10 @@ void Generate_Ndecay(const TString Output_Name = "test",
     }
 
     // Variables declaration
-    double amu = 931.494028;            // MeV/c2
-    double c = 299792458;               // m/s
-    double hc = 197.3269788;            // MeV.fm
-    double h_barC_MeV_fm = 197.3269788; // MeV.fm
+    const double amu = 931.494028;            // MeV/c2
+    const double c = 299792458;               // m/s
+    const double hc = 197.3269788;            // MeV.fm
+    const double h_barC_MeV_fm = 197.3269788; // MeV.fm
     int Nb = Evt_number;
     double a1, a2, a3;
     double Pnn1[4], Pnn2[4], Pnn3[4]; // 4-vector with 2n
@@ -804,8 +826,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
     // Nbr of simulated events loop
     for (Long64_t i = 0; i < Nb; i++)
     {
-
-        std::cout << int(100. * i / Nb) << " %" << '\r' << flush;
+        showProgressBar(i, Nb);
 
         m_nn->clear();
         theta_n_n->clear();
@@ -901,7 +922,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
                 outfile << i_counter << "  " << 2 << "\n";
                 outfile << -1 << "  " << Z << "  " << A << "  " << Pf[0] / 1000. << "  " << Pf[1] / 1000. << "  "
                         << Pf[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
-                outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pn[0] / 1000. << "  " << Pn[1] / 1000. << "  "
+                outfile << 2112 << "  " << 0 << "  " << 1 << "  " << Pn[0] / 1000. << "  " << Pn[1] / 1000. << "  "
                         << Pn[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
 
                 i_counter++;
@@ -990,11 +1011,6 @@ void Generate_Ndecay(const TString Output_Name = "test",
             ZBOOST(Pnn2, b_beam);
             ZBOOST(Pnn3, b_beam);
 
-            // cout << Pnn1[0] << "   " << Pnn1[1] << "  " << Pnn1[2] << "   " <<
-            // Pnn1[3] << endl; cout << Pnn2[0] << "   " << Pnn2[1] << "  " << Pnn2[2]
-            // << "   " << Pnn2[3] << endl; cout << Pnn3[0] << "   " << Pnn3[1] << "
-            // " << Pnn3[2] << "   " << Pnn3[3] << endl;
-
             // Making input file for R3BRoot simulation
             // Generate Target Position
             double x = 0.;
@@ -1008,9 +1024,9 @@ void Generate_Ndecay(const TString Output_Name = "test",
             outfile << i_counter << "  " << 3 << "\n";
             outfile << -1 << "  " << Z << "  " << A << "  " << Pnn3[0] / 1000. << "  " << Pnn3[1] / 1000. << "  "
                     << Pnn3[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
-            outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pnn1[0] / 1000. << "  " << Pnn1[1] / 1000. << "  "
+            outfile << 2112 << "  " << 0 << "  " << 1 << "  " << Pnn1[0] / 1000. << "  " << Pnn1[1] / 1000. << "  "
                     << Pnn1[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
-            outfile << 1 << "  " << 1 << "  " << 2112 << "  " << Pnn2[0] / 1000. << "  " << Pnn2[1] / 1000. << "  "
+            outfile << 2112 << "  " << 0 << "  " << 1 << "  " << Pnn2[0] / 1000. << "  " << Pnn2[1] / 1000. << "  "
                     << Pnn2[2] / 1000. << "  " << x << "  " << y << "  " << z << "\n";
 
             i_counter++;
@@ -1163,7 +1179,7 @@ void Generate_Ndecay(const TString Output_Name = "test",
 
             if (m_nn->size() != m_fn1->size() || m_nn->size() != m_fn2->size() || m_nn->size() != E_star2n->size())
             {
-                cout << "Problem with the size of the vectors" << endl;
+                std::cout << "Problem with the size of the vectors" << std::endl;
             }
             tree->Fill();
         }
@@ -1174,9 +1190,10 @@ void Generate_Ndecay(const TString Output_Name = "test",
     hfile.Close();
 
     outfile.close();
+    
+    std::cout << "Calculation finished successfully" << std::endl << std::endl;
 
     // Delete
-
     delete h1_E_res;
     delete h1_C_nn;
     delete h1_C_nn_seq;
