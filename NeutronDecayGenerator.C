@@ -568,6 +568,8 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
     double Beta_sig = 0.; // Velocity dispersion for beta
 
     const double mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
+    std::cout << "Outgoing fragment mass = " << mf <<" in MeV"<< std::endl;
+    
     double r0_init = 1.5;                  // as defined in Lednicky paper
     const double Beta = TMath::Sqrt(1. - (mf / (Ekin * A + mf)) * (mf / (Ekin * A + mf)));
     int FSI_nn = 0;    // decay mode options
