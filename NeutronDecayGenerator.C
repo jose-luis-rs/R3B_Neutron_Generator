@@ -12,49 +12,47 @@
  * or submit itself to any jurisdiction.                                      *
  ******************************************************************************/
 
-#include "TMath.h"
-#include "TPaveText.h"
-#include "TStreamerInfo.h"
+#include "TApplication.h"
 #include "mass.h"
-#include <TAttLine.h>
-#include <TAxis.h>
-#include <TCanvas.h>
-#include <TChain.h>
 #include <TF1.h>
 #include <TFile.h>
 #include <TGraph.h>
 #include <TH1.h>
 #include <TH1F.h>
-#include <TMinuit.h>
+#include <TMath.h>
 #include <TROOT.h>
 #include <TRandom3.h>
+#include <TStreamerInfo.h>
 #include <TStyle.h>
-#include <TVirtualFitter.h>
+#include <TTree.h>
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdlib.h>
 #include <string>
-#include <vector>
-#include <iostream>
 #include <thread>
-#include <chrono>
+#include <vector>
 
-void showProgressBar(int i, int total, int width = 50) {
-    float ratio = i / (total-1.);
+void showProgressBar(int i, int total, int width = 50)
+{
+    float ratio = i / (total - 1.);
     int c = int(ratio * width);
 
-    std::cout << "Processed: \033[32m" << i << "\033[0m / \033[31m" << total << "\033[0m [";
+    std::cout << "Processed: \033[32m" << i + 1 << "\033[0m / \033[31m" << total << "\033[0m [";
 
-    for (int j = 0; j < width; j++) {
-        if (j < c) std::cout << "\033[32m█\033[0m";  
-        else       std::cout << "-";
+    for (int j = 0; j < width; j++)
+    {
+        if (j < c)
+            std::cout << "\033[32m█\033[0m";
+        else
+            std::cout << "-";
     }
 
-    std::cout << "] \033[33m" << int(ratio * 100) << "%\033[0m" 
-              << '\r' << std::flush;
+    std::cout << "] \033[33m" << int(ratio * 100) << "%\033[0m" << '\r' << std::flush;
 }
 
 double VMOD(double* vec)
@@ -549,14 +547,14 @@ void PHASE_2(double a1, double a2, double Ed, double* w1, double* w2, TRandom* R
 
 // A, Z of the fragment nuclei ex : 27Ne -> 26F -> 24F + 2n  SIMULATION(24,9)
 void NeutronDecayGenerator(const TString Output_Name = "test",
-                     const int Evt_number = 10,
-                     const int A = 24,
-                     const int Z = 9,
-                     const double Ekin = 500., // MeV/u
-                     const double E_BW = 2.5,
-                     double W_BW = 0,
-                     const int N = 1, // number of neutrons: 1n or 2n
-                     const int decay_opt = 0)
+                           const int Evt_number = 10,
+                           const int A = 24,
+                           const int Z = 9,
+                           const double Ekin = 500., // MeV/u
+                           const double E_BW = 2.5,
+                           double W_BW = 0,
+                           const int N = 1, // number of neutrons: 1n or 2n
+                           const int decay_opt = 0)
 {
     // Parameters of the Simulation  ---------------------------------------------------------------
     // E_BW is the resonance decay energy in MeV
@@ -565,15 +563,15 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
     // W_BW = -1 corresponds to an uniform distribution between 0 and E_BW in MeV
     // W_BW = -2 corresponds to a delta resonance with an average energy of 2 MeV
     // W_BW > 0 corresponds to a resonance with an average energy of E_BW in MeV and a sigma of W_BW
-    
+
     std::cout << std::endl;
-    std::cout << "Running for " <<Evt_number<< " events"<< std::endl;
-    std::cout << "Outgoing fragment A = " <<A<<" , Z = "<<Z<< std::endl;
+    std::cout << "Running for " << Evt_number << " events" << std::endl;
+    std::cout << "Outgoing fragment A = " << A << " , Z = " << Z << std::endl;
 
     double Beta_sig = 0.; // Velocity dispersion for beta
 
     const double mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
-    double r0_init = 1.5;            // as defined in Lednicky paper
+    double r0_init = 1.5;                  // as defined in Lednicky paper
     const double Beta = TMath::Sqrt(1. - (mf / (Ekin * A + mf)) * (mf / (Ekin * A + mf)));
     int FSI_nn = 0;    // decay mode options
     int SEQ_Decay = 0; // decay mode options
@@ -660,46 +658,46 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
     double Pf_E;
     double Estar_1n;
 
-    vector<double>* m_nn = new vector<double>;
-    vector<double>* m_fn1 = new vector<double>;
-    vector<double>* m_fn2 = new vector<double>;
-    vector<double>* E_star2n = new vector<double>;
+    std::vector<double> m_nn;
+    std::vector<double> m_fn1;
+    std::vector<double> m_fn2;
+    std::vector<double> E_star2n;
 
-    vector<double>* E_star2n_n1 = new vector<double>;
-    vector<double>* E_star2n_n2 = new vector<double>;
-    vector<double>* theta_n_n = new vector<double>;
-    vector<double>* theta_fn1_n = new vector<double>; // angle between p_fn1 and pn2
-    vector<double>* theta_fn2_n = new vector<double>; // angle between p_fn2 and pn1
-    vector<double>* theta_nn1_f = new vector<double>; // angle between pn1n2 and pf
-    vector<double>* theta_nn2_f = new vector<double>; // angle between pn2n1 and pf
-    vector<double>* theta_kY_1 = new vector<double>;  // angle define in 6Be paper k2->f k1->n1
-    vector<double>* theta_kT_1 = new vector<double>;  // angle define in 6Be paper with k2->n2 k1->n1
-    vector<double>* Ex_Y_1 = new vector<double>;      // energy define in 6Be paper k2->f k1->n1
-    vector<double>* Ex_T_1 = new vector<double>;      // energy define in 6Be paper with k2->n2 k1->n1
-    vector<double>* theta_kY_2 = new vector<double>;  // angle define in 6Be paper k2->f k1->n1
-    vector<double>* theta_kT_2 = new vector<double>;  // angle define in 6Be paper with k2->n2 k1->n1
-    vector<double>* Ex_Y_2 = new vector<double>;      // energy define in 6Be paper k2->f k1->n1
-    vector<double>* Ex_T_2 = new vector<double>;      // energy define in 6Be paper with k2->n2 k1->n1
-    double q;                                         // argument to calculate before to use give it to C_nn
+    std::vector<double> E_star2n_n1;
+    std::vector<double> E_star2n_n2;
+    std::vector<double> theta_n_n;
+    std::vector<double> theta_fn1_n; // angle between p_fn1 and pn2
+    std::vector<double> theta_fn2_n; // angle between p_fn2 and pn1
+    std::vector<double> theta_nn1_f; // angle between pn1n2 and pf
+    std::vector<double> theta_nn2_f; // angle between pn2n1 and pf
+    std::vector<double> theta_kY_1;  // angle defined in 6Be paper k2->f k1->n1
+    std::vector<double> theta_kT_1;  // angle defined in 6Be paper with k2->n2 k1->n1
+    std::vector<double> Ex_Y_1;      // energy defined in 6Be paper k2->f k1->n1
+    std::vector<double> Ex_T_1;      // energy defined in 6Be paper with k2->n2 k1->n1
+    std::vector<double> theta_kY_2;  // angle defined in 6Be paper k2->f k1->n1
+    std::vector<double> theta_kT_2;  // angle defined in 6Be paper with k2->n2 k1->n1
+    std::vector<double> Ex_Y_2;      // energy defined in 6Be paper k2->f k1->n1
+    std::vector<double> Ex_T_2;      // energy defined in 6Be paper with k2->n2 k1->n1
+    double q;                        // argument to calculate before to use give it to C_nn
 
     double gamma_n[2], beta_n[2]; // gamma and beta of the two neutrons
 
-    auto Rand_angle = new TRandom3(0); // random distribution for the angle
-    auto Rand = new TRandom3(0);       // random distribution for the energy Ed
-    auto Rand_0 = new TRandom3(0);     // random distribution for the C_nn correlations
-    auto Dist = new TRandom3(0);       // random distribution for the Distance of interaction in LAND
-    auto Dist1 = new TRandom3(0);
-    auto Dist2 = new TRandom3(0);
-    auto Rand_X1 = new TRandom3(0);
-    auto Rand_Y1 = new TRandom3(0);
-    auto Rand_X2 = new TRandom3(0);
-    auto Rand_Y2 = new TRandom3(0);
-    auto Rand_Z1 = new TRandom3(0);
-    auto Rand_Z2 = new TRandom3(0);
-    auto Time1 = new TRandom3(0);
-    auto Time2 = new TRandom3(0);
-    auto Rand_1n = new TRandom3(0);
-    auto Rand_2n = new TRandom3(0);
+    auto Rand_angle = std::make_unique<TRandom3>(0);
+    auto Rand = std::make_unique<TRandom3>(0);
+    auto Rand_0 = std::make_unique<TRandom3>(0);
+    auto Dist = std::make_unique<TRandom3>(0);
+    auto Dist1 = std::make_unique<TRandom3>(0);
+    auto Dist2 = std::make_unique<TRandom3>(0);
+    auto Rand_X1 = std::make_unique<TRandom3>(0);
+    auto Rand_Y1 = std::make_unique<TRandom3>(0);
+    auto Rand_X2 = std::make_unique<TRandom3>(0);
+    auto Rand_Y2 = std::make_unique<TRandom3>(0);
+    auto Rand_Z1 = std::make_unique<TRandom3>(0);
+    auto Rand_Z2 = std::make_unique<TRandom3>(0);
+    auto Time1 = std::make_unique<TRandom3>(0);
+    auto Time2 = std::make_unique<TRandom3>(0);
+    auto Rand_1n = std::make_unique<TRandom3>(0);
+    auto Rand_2n = std::make_unique<TRandom3>(0);
 
     // angle_n_n in center of mass calculation
     double P_n1[4], P_n2[4], P_f[4], P_tot[4]; // 4-vector
@@ -709,15 +707,13 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
     double b_boost[3];
 
     // Histogram to visualize the nn-FSI correlation function
-    auto h1_C_nn = new TH1D("h1_C_nn", "h1_C_nn", 200, 0, 10);
-    auto h1_C_nn_seq = new TH1D("h1_C_nn_seq", "h1_C_nn_seq", 200, 0,
-                                10); // from sequential decay
-    auto h1_E_res = new TH1D("h1_E_res",
-                             "h1_E_res",
-                             200,
-                             0,
-                             15); // to check the intermediate resonnance energy
-                                  // in case of sequential decay
+    // Histogram to visualize the nn-FSI correlation function
+    auto h1_C_nn = std::make_unique<TH1D>("h1_C_nn", "h1_C_nn", 200, 0, 10);
+
+    auto h1_C_nn_seq = std::make_unique<TH1D>("h1_C_nn_seq", "h1_C_nn_seq", 200, 0, 10); // from sequential decay
+
+    auto h1_E_res = std::make_unique<TH1D>("h1_E_res", "h1_E_res", 200, 0, 15); // to check the intermediate resonance
+                                                                                // energy in case of sequential decay
 
     // For simulation with Breit Wigner in Input
     double Xo_r = E_BW; // Centroid BW
@@ -771,9 +767,7 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
     BW_Dineutron->SetParameter(2, Xo);
     BW_Dineutron->SetParameter(3, Wo * (Ri / hc) / rho_o / 2.);
 
-    TFile hfile(Output_Name + (TString) ".root", "RECREATE");
-    auto tree = new TTree("SimuTree", "ROOT TREE"); // Create a ROOT Tree
-
+    auto tree = std::make_unique<TTree>("evt", "NeutronDecayTree");
     tree->Branch("Ed", &Ed);
     tree->Branch("Beta", &b_beam);
 
@@ -792,26 +786,26 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
 
     if (N == 2)
     {
-        tree->Branch("m_nn", m_nn);
-        tree->Branch("m_fn1", m_fn1); // with 1st neutron
-        tree->Branch("m_fn2", m_fn2); // with 2nd neutron
-        tree->Branch("E_star2n", E_star2n);
+        tree->Branch("m_nn", &m_nn);
+        tree->Branch("m_fn1", &m_fn1); // with 1st neutron
+        tree->Branch("m_fn2", &m_fn2); // with 2nd neutron
+        tree->Branch("E_star2n", &E_star2n);
 
-        tree->Branch("theta_n_n", theta_n_n);
-        tree->Branch("theta_fn2_n", theta_fn2_n);
-        tree->Branch("theta_fn1_n", theta_fn1_n);
-        tree->Branch("theta_nn1_f", theta_nn1_f);
-        tree->Branch("theta_nn2_f", theta_nn2_f);
-        tree->Branch("theta_kY_1", theta_kY_1);
-        tree->Branch("theta_kT_1", theta_kT_1);
-        tree->Branch("Ex_Y_1", Ex_Y_1);
-        tree->Branch("Ex_T_1", Ex_T_1);
-        tree->Branch("theta_kY_2", theta_kY_2);
-        tree->Branch("theta_kT_2", theta_kT_2);
-        tree->Branch("Ex_Y_2", Ex_Y_2);
-        tree->Branch("Ex_T_2", Ex_T_2);
-        tree->Branch("E_star2n_n1", E_star2n_n1);
-        tree->Branch("E_star2n_n2", E_star2n_n2);
+        tree->Branch("theta_n_n", &theta_n_n);
+        tree->Branch("theta_fn2_n", &theta_fn2_n);
+        tree->Branch("theta_fn1_n", &theta_fn1_n);
+        tree->Branch("theta_nn1_f", &theta_nn1_f);
+        tree->Branch("theta_nn2_f", &theta_nn2_f);
+        tree->Branch("theta_kY_1", &theta_kY_1);
+        tree->Branch("theta_kT_1", &theta_kT_1);
+        tree->Branch("Ex_Y_1", &Ex_Y_1);
+        tree->Branch("Ex_T_1", &Ex_T_1);
+        tree->Branch("theta_kY_2", &theta_kY_2);
+        tree->Branch("theta_kT_2", &theta_kT_2);
+        tree->Branch("Ex_Y_2", &Ex_Y_2);
+        tree->Branch("Ex_T_2", &Ex_T_2);
+        tree->Branch("E_star2n_n1", &E_star2n_n1);
+        tree->Branch("E_star2n_n2", &E_star2n_n2);
     }
 
     // Variables for C_nn test
@@ -828,26 +822,26 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
     {
         showProgressBar(i, Nb);
 
-        m_nn->clear();
-        theta_n_n->clear();
-        m_fn1->clear();
-        m_fn2->clear();
-        E_star2n->clear();
+        m_nn.clear();
+        theta_n_n.clear();
+        m_fn1.clear();
+        m_fn2.clear();
+        E_star2n.clear();
 
-        E_star2n_n1->clear();
-        E_star2n_n2->clear();
-        theta_fn2_n->clear();
-        theta_fn1_n->clear();
-        theta_nn1_f->clear();
-        theta_nn2_f->clear();
-        theta_kY_1->clear();
-        theta_kT_1->clear();
-        Ex_Y_1->clear();
-        Ex_T_1->clear();
-        theta_kY_2->clear();
-        theta_kT_2->clear();
-        Ex_Y_2->clear();
-        Ex_T_2->clear();
+        E_star2n_n1.clear();
+        E_star2n_n2.clear();
+        theta_fn2_n.clear();
+        theta_fn1_n.clear();
+        theta_nn1_f.clear();
+        theta_nn2_f.clear();
+        theta_kY_1.clear();
+        theta_kT_1.clear();
+        Ex_Y_1.clear();
+        Ex_T_1.clear();
+        theta_kY_2.clear();
+        theta_kT_2.clear();
+        Ex_Y_2.clear();
+        Ex_T_2.clear();
 
         r0 = r0_init;
 
@@ -890,7 +884,7 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
         /********************1 NEUTRON DECAY SIMULATION*********************/
         if (N == 1)
         {
-            PHASE_2(mn, mf, Ed, Pn, Pf, Rand_angle);
+            PHASE_2(mn, mf, Ed, Pn, Pf, Rand_angle.get());
 
             // Back in the Lab frame
             ZBOOST(Pn, b_beam);
@@ -944,7 +938,7 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
                 {
                     if (SEQ_Decay == 1)
                     { // Sequential decay mode
-                        E23 = PHASE2x2(mn, mn, mf, Ed, Pnn1, Pnn2, Pnn3, Rand_angle, A, ESeq_BW);
+                        E23 = PHASE2x2(mn, mn, mf, Ed, Pnn1, Pnn2, Pnn3, Rand_angle.get(), A, ESeq_BW);
 
                         h1_E_res->Fill(E23);
                         q = sqrt(((Pnn1[0] - Pnn2[0]) * (Pnn1[0] - Pnn2[0]) +
@@ -966,7 +960,7 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
                     else if (SEQ_Decay == 2)
                     { // Dineutron Decay
 
-                        E23 = PHASE2x2(mf, mn, mn, Ed, Pnn3, Pnn2, Pnn1, Rand_angle, A, BW_Dineutron);
+                        E23 = PHASE2x2(mf, mn, mn, Ed, Pnn3, Pnn2, Pnn1, Rand_angle.get(), A, BW_Dineutron);
 
                         q = sqrt(((Pnn1[0] - Pnn2[0]) * (Pnn1[0] - Pnn2[0]) +
                                   (Pnn1[1] - Pnn2[1]) * (Pnn1[1] - Pnn2[1]) +
@@ -980,7 +974,7 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
                     else
                     { // Direct decay
                         PHASE_3(mn, mn, mf, Ed, Pnn1, Pnn2, Pnn3,
-                                Rand_angle); // direct decay
+                                Rand_angle.get()); // direct decay
 
                         q = sqrt(((Pnn1[0] - Pnn2[0]) * (Pnn1[0] - Pnn2[0]) +
                                   (Pnn1[1] - Pnn2[1]) * (Pnn1[1] - Pnn2[1]) +
@@ -999,7 +993,7 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
             }
             else
             {
-                PHASE_3(mn, mn, mf, Ed, Pnn1, Pnn2, Pnn3, Rand_angle);
+                PHASE_3(mn, mn, mf, Ed, Pnn1, Pnn2, Pnn3, Rand_angle.get());
                 q = sqrt(((Pnn1[0] - Pnn2[0]) * (Pnn1[0] - Pnn2[0]) + (Pnn1[1] - Pnn2[1]) * (Pnn1[1] - Pnn2[1]) +
                           (Pnn1[2] - Pnn2[2]) * (Pnn1[2] - Pnn2[2])) -
                          (Pnn1[3] - Pnn2[3]) * (Pnn1[3] - Pnn2[3])) /
@@ -1157,27 +1151,27 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
             double Ex_Y_2_bfLAND =
                 (mn + mf) * (kx_Y_2[0] * kx_Y_2[0] + kx_Y_2[1] * kx_Y_2[1] + kx_Y_2[2] * kx_Y_2[2]) / (2 * mn * mf);
 
-            E_star2n->push_back(Estar2n(mn, mf, Pnn1, Pnn2, Pnn3));
-            theta_n_n->push_back(theta_n_n_bfLAND);
-            theta_fn1_n->push_back(theta_fn1_n_bfLAND);
-            theta_fn2_n->push_back(theta_fn2_n_bfLAND);
-            theta_nn1_f->push_back(theta_nn1_f_bfLAND);
-            theta_nn2_f->push_back(theta_nn2_f_bfLAND);
-            theta_kY_1->push_back(theta_kY_1_bfLAND);
-            theta_kT_1->push_back(theta_kT_1_bfLAND);
-            Ex_T_1->push_back(Ex_T_1_bfLAND / E_star2n->at(0));
-            Ex_Y_1->push_back(Ex_Y_1_bfLAND / E_star2n->at(0));
-            theta_kY_2->push_back(theta_kY_2_bfLAND);
-            theta_kT_2->push_back(theta_kT_2_bfLAND);
-            Ex_T_2->push_back(Ex_T_2_bfLAND / E_star2n->at(0));
-            Ex_Y_2->push_back(Ex_Y_2_bfLAND / E_star2n->at(0));
-            E_star2n_n1->push_back(Estar1n(mn, mf, Pnn1, Pnn3));
-            E_star2n_n2->push_back(Estar1n(mn, mf, Pnn2, Pnn3));
-            m_nn->push_back(DALITZ(mn, mn, E_star2n->at(0), Pnn2, Pnn1));
-            m_fn1->push_back(DALITZ(mf, mn, E_star2n->at(0), Pnn1, Pnn3));
-            m_fn2->push_back(DALITZ(mf, mn, E_star2n->at(0), Pnn3, Pnn2));
+            E_star2n.push_back(Estar2n(mn, mf, Pnn1, Pnn2, Pnn3));
+            theta_n_n.push_back(theta_n_n_bfLAND);
+            theta_fn1_n.push_back(theta_fn1_n_bfLAND);
+            theta_fn2_n.push_back(theta_fn2_n_bfLAND);
+            theta_nn1_f.push_back(theta_nn1_f_bfLAND);
+            theta_nn2_f.push_back(theta_nn2_f_bfLAND);
+            theta_kY_1.push_back(theta_kY_1_bfLAND);
+            theta_kT_1.push_back(theta_kT_1_bfLAND);
+            Ex_T_1.push_back(Ex_T_1_bfLAND / E_star2n.at(0));
+            Ex_Y_1.push_back(Ex_Y_1_bfLAND / E_star2n.at(0));
+            theta_kY_2.push_back(theta_kY_2_bfLAND);
+            theta_kT_2.push_back(theta_kT_2_bfLAND);
+            Ex_T_2.push_back(Ex_T_2_bfLAND / E_star2n.at(0));
+            Ex_Y_2.push_back(Ex_Y_2_bfLAND / E_star2n.at(0));
+            E_star2n_n1.push_back(Estar1n(mn, mf, Pnn1, Pnn3));
+            E_star2n_n2.push_back(Estar1n(mn, mf, Pnn2, Pnn3));
+            m_nn.push_back(DALITZ(mn, mn, E_star2n.at(0), Pnn2, Pnn1));
+            m_fn1.push_back(DALITZ(mf, mn, E_star2n.at(0), Pnn1, Pnn3));
+            m_fn2.push_back(DALITZ(mf, mn, E_star2n.at(0), Pnn3, Pnn2));
 
-            if (m_nn->size() != m_fn1->size() || m_nn->size() != m_fn2->size() || m_nn->size() != E_star2n->size())
+            if (m_nn.size() != m_fn1.size() || m_nn.size() != m_fn2.size() || m_nn.size() != E_star2n.size())
             {
                 std::cout << "Problem with the size of the vectors" << std::endl;
             }
@@ -1185,39 +1179,15 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
         }
     }
 
-    hfile.cd();
+    // Store data in the ROOT file and close it
+    TFile hfile(Output_Name + (TString) ".root", "RECREATE");
     tree->Write();
     hfile.Close();
 
+    // Close ASCII file
     outfile.close();
-    
+
+    std::cout << std::endl;
     std::cout << "Calculation finished successfully" << std::endl << std::endl;
-
-    // Delete
-    delete h1_E_res;
-    delete h1_C_nn;
-    delete h1_C_nn_seq;
-
-    delete m_nn;
-    delete theta_n_n;
-    delete m_fn1;
-    delete m_fn2;
-    delete E_star2n;
-    delete E_star2n_n1;
-    delete E_star2n_n2;
-
-    delete theta_fn2_n;
-    delete theta_fn1_n;
-    delete theta_nn1_f;
-    delete theta_nn2_f;
-    delete theta_kY_1;
-    delete theta_kT_1;
-    delete Ex_Y_1;
-    delete Ex_T_1;
-    delete theta_kY_2;
-    delete theta_kT_2;
-    delete Ex_Y_2;
-    delete Ex_T_2;
-    
-    return;
+    gApplication->Terminate();
 }
