@@ -7,9 +7,6 @@
  *                 GNU General Public Licence (GPL) version 3,                *
  *                    copied verbatim in the file "LICENSE".                  *
  *                                                                            *
- * In applying this license GSI does not waive the privileges and immunities  *
- * granted to it by virtue of its status as an Intergovernmental Organization *
- * or submit itself to any jurisdiction.                                      *
  ******************************************************************************/
 
 #include "TApplication.h"
