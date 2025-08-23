@@ -53,8 +53,8 @@ $$
 
 Where:
 
-- `m_p` is the proton mass (938.272088 MeV, [PDG 2022](https://pdg.lbl.gov/2025/listings/rpp2025-list-p.pdf))
-- `m_n` is the neutron mass (939.565420 MeV, [PDG 2022](https://pdg.lbl.gov/2025/listings/rpp2025-list-n.pdf))
+- `m_p` is the proton mass (938.272088 MeV, [PDG 2025](https://pdg.lbl.gov/2025/listings/rpp2025-list-p.pdf))
+- `m_n` is the neutron mass (939.565420 MeV, [PDG 2025](https://pdg.lbl.gov/2025/listings/rpp2025-list-n.pdf))
 - `B` is the nuclear binding energy from the [AME2020 atomic mass evaluation](https://www-nds.iaea.org/amdc/) 
 
 For nuclei not listed or with missing binding energy data, the generator returns `-1`.
