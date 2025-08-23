@@ -1,9 +1,9 @@
-## Neutron Decay Event Generator [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](COPYRIGHT)
+# Neutron Decay Event Generator [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](COPYRIGHT)
 [![CI-CD](https://github.com/jose-luis-rs/R3B_Neutron_Generator/actions/workflows/main.yml/badge.svg)](https://github.com/jose-luis-rs/R3B_Neutron_Generator/actions/workflows/main.yml)
 
 This file is used to generate input data for the [R3BRoot](https://github.com/R3BRootGroup/R3BRoot) simulation framework. It supports the generation of 1n and 2n decay events, including multiple decay mechanisms for the 2n decay mode.
 
-### License
+## License
 This software is distributed under the terms of the GNU Lesser General Public Licence version 3 ([LGPLv3](https://github.com/jose-luis-rs/R3B_Neutron_Generator/blob/main/LICENSE)).
 
 ## Release Information
@@ -21,7 +21,7 @@ This project uses clang-format-15 to ensure a common code formatting.
 clang-format-15 -i file
 ~~~
 
-### Decay Mode Options
+## Decay Mode Options
 The type of decay can be configured using the `decay_opt` parameter, which accepts the following values:
 
 - `decay_opt = 0` — **Basic parameters for 1n decay**
@@ -29,7 +29,7 @@ The type of decay can be configured using the `decay_opt` parameter, which accep
 - `decay_opt = 2` — **Sequential decay for a 2n decay**
 - `decay_opt = 3` — **Dineutron decay for 2n**
 
-### How to Use
+## How to Use
 
 Clone the repository:
 
@@ -58,7 +58,7 @@ root -l 'NeutronDecayGenerator.C("fileName", nb_events, A, Z, Ekin, E_BW, W_BW, 
 | `nb_n`      | Number of decay neutrons                 |
 | `decay_opt` | Decay mode selection (see above options) |
 
-### Nuclear Mass Calculation
+## Nuclear Mass Calculation
 
 The nuclear masses used in this generator are computed using the formula:
 
