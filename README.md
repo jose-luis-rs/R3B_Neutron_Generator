@@ -6,6 +6,21 @@ This file is used to generate input data for the [R3BRoot](https://github.com/R3
 ### License
 This software is distributed under the terms of the GNU Lesser General Public Licence version 3 ([LGPLv3](https://github.com/jose-luis-rs/R3B_Neutron_Generator/blob/main/LICENSE)).
 
+## Release Information
+
+Please visit [releases](https://github.com/jose-luis-rs/R3BNeutronDecayGenerator/releases)
+
+## Contributing
+
+Please ask your questions, request features, and report issues by [creating a github issue](https://github.com/jose-luis-rs/R3BNeutronDecayGenerator/issues/new/choose).
+
+## Code Formatting
+
+This project uses clang-format-15 to ensure a common code formatting.
+~~~bash
+clang-format-15 -i file
+~~~
+
 ### Decay Mode Options
 The type of decay can be configured using the `decay_opt` parameter, which accepts the following values:
 
