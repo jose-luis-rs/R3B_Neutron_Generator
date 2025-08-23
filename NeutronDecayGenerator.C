@@ -567,7 +567,8 @@ void NeutronDecayGenerator(const TString Output_Name = "test",
 
     double Beta_sig = 0.; // Velocity dispersion for beta
 
-    const double mf = Nuke_Mass_Tab[A][Z]; // Mass of your fragment
+    const double mf = masses_ame2020[A][Z]; // Mass of your fragment
+    std::cout << std::fixed << std::setprecision(6);
     std::cout << "Outgoing fragment mass = " << mf <<" in MeV"<< std::endl;
     
     double r0_init = 1.5;                  // as defined in Lednicky paper

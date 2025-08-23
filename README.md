@@ -43,3 +43,19 @@ root -l 'NeutronDecayGenerator.C("fileName", nb_events, A, Z, Ekin, E_BW, W_BW, 
 | `nb_n`      | Number of decay neutrons                 |
 | `decay_opt` | Decay mode selection (see above options) |
 
+### Nuclear Mass Calculation
+
+The nuclear masses used in this generator are computed using the formula:
+
+\[
+M_\text{nucleus} = Z \cdot m_p + N \cdot m_n - B
+\]
+
+Where:
+
+- `m_p` is the proton mass (938.272088 MeV, [PDG 2022](https://pdg.lbl.gov/2022/listings/rpp2022-list-proton.pdf))
+- `m_n` is the neutron mass (939.565420 MeV, [PDG 2022](https://pdg.lbl.gov/2022/listings/rpp2022-list-neutron.pdf))
+- `B` is the nuclear binding energy from the [AME2020 atomic mass evaluation](https://www-nds.iaea.org/amdc/) 
+
+For nuclei not listed or with missing binding energy data, the generator returns `-1`.
+
